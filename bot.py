@@ -20,17 +20,12 @@ def convert(reddit_link):
     urllib.request.urlretrieve(fallback_url, "download.mp4")
     #upload the video to imgur
     imgur_url = "https://api.imgur.com/3/upload"
-    payload = {'album': 'ALBUMID',
-    'type': 'file',
-    'disable_audio': '0'}
-    files = [
-    ('video', open('download.mp4','rb'))
-    ]
-    headers = {
-    'Authorization': 'Bearer BEARERTOKENHERE'
-    }
+    payload = {'type': 'file','disable_audio': '0','title':'test'}
+    files = [('video', open('download.mp4','rb'))]
+    headers = {'Authorization': 'Client-ID 6cff0087a2d10ca'}
     print('Uploading to imgur')
     response = requests.request("POST", imgur_url, headers=headers, data = payload, files = files)
+    print(response)
     json_data = json.loads(response.text)
     #print(json_data)
     link = json_data['data']['link']
@@ -56,7 +51,7 @@ async def on_ready():
 async def convert_link(ctx, link: str):
     print(f'Converting link: {link}')
     response = convert(link)
-    time.sleep(10)
+    time.sleep(10) #this is here so that imgur doesnt spit out a broke embeded image
     await ctx.send(response)
     #with open(response, 'rb') as fp:
     #    await ctx.send(file=discord.File(fp))
