@@ -62,7 +62,7 @@ async def on_ready():
 @bot.command(name='c')
 async def convert_link(ctx, link: str):
     print(f'Converting link: {link}')
-    message = await ctx.send(f'Converting...')
+    message = await ctx.send(f'⏱Converting...')
     upload_link, upload_id, status_code = convert(link)
     if status_code == 200:
         processing_status = fetch(upload_id)
