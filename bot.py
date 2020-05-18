@@ -2,8 +2,10 @@ import os
 import discord 
 from discord.ext import commands
 import requests, urllib, json, time
+import asyncio
 
 TOKEN = os.getenv('DISCORD_TOKEN')
+IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
 client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
@@ -22,16 +24,26 @@ def convert(reddit_link):
     imgur_url = "https://api.imgur.com/3/upload"
     payload = {'type': 'file','disable_audio': '0','title':'test'}
     files = [('video', open('download.mp4','rb'))]
-    headers = {'Authorization': 'Client-ID 6cff0087a2d10ca'}
+    headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
     print('Uploading to imgur')
     response = requests.request("POST", imgur_url, headers=headers, data = payload, files = files)
     print(response)
     json_data = json.loads(response.text)
-    #print(json_data)
-    link = json_data['data']['link']
-    print(f'Posting imgur link: {link}')
-    #return 'download.mp4'
-    return link
+    print(response.text.encode('utf8'))
+    upload_link = json_data['data']['link']
+    upload_id = json_data['data']['id']
+    status_code = json_data['status']
+    print(f'Upload done')
+    return (upload_link, upload_id, status_code)
+
+def fetch(upload_id):
+    print(f'Checking processing status for id: {upload_id}')
+    imgur_url = f"https://api.imgur.com/3/image/{upload_id}"
+    headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
+    response = requests.request("GET", imgur_url, headers=headers)
+    json_data = json.loads(response.text)
+    processing_status = json_data['data']['processing']['status']
+    return processing_status
 
 @client.event
 async def on_ready():
@@ -50,9 +62,19 @@ async def on_ready():
 @bot.command(name='c')
 async def convert_link(ctx, link: str):
     print(f'Converting link: {link}')
-    response = convert(link)
-    time.sleep(10) #this is here so that imgur doesnt spit out a broke embeded image
-    await ctx.send(response)
+    message = await ctx.send(f'Converting...')
+    upload_link, upload_id, status_code = convert(link)
+    if status_code == 200:
+        processing_status = fetch(upload_id)
+        while processing_status != 'completed':
+            time.sleep(2)
+            processing_status = fetch(upload_id)
+        print(f'Processing finished, posting: {upload_link}')
+        await message.edit(content=f"{upload_link}")
+    else:
+        await message.edit(content=f'Error status code: {status_code}')
+    #await asyncio.sleep(5)  
+    #await message.edit(content=f"{response}")
     #with open(response, 'rb') as fp:
     #    await ctx.send(file=discord.File(fp))
 
