@@ -3,7 +3,7 @@
 Setup:
 1. pip install -r requirements.txt
 2. add the bot to your Discord server.
-3. Configure the IMGUR_CLIENT and DISCORD_TOKEN environment variables
+3. configure the IMGUR_CLIENT and DISCORD_TOKEN environment variables
 4. run bot.py
 
 
