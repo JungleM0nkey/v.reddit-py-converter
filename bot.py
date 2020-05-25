@@ -20,24 +20,33 @@ def convert(reddit_link):
         reddit_link = reddit_link + '.json'
     r = requests.get(reddit_link, headers = {'User-agent': 'v.reddit-py 1.0'})
     json_data = r.json()
-    fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
-    print(f'Downloading video from: {fallback_url}')
-    urllib.request.urlretrieve(fallback_url, "download.mp4")
-    #upload the video to imgur
-    imgur_url = "https://api.imgur.com/3/upload"
-    payload = {'type': 'file','disable_audio': '0','title':'test'}
-    files = [('video', open('download.mp4','rb'))]
-    headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
-    print('Uploading to imgur')
-    response = requests.request("POST", imgur_url, headers=headers, data = payload, files = files)
-    print(response)
-    json_data = json.loads(response.text)
-    print(response.text.encode('utf8'))
-    upload_link = json_data['data']['link']
-    upload_id = json_data['data']['id']
-    status_code = json_data['status']
-    print(f'Upload done')
-    return (upload_link, upload_id, status_code)
+    #this checks if the link actually contains a v.redd.it video
+    try:
+        fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
+        print(f'Downloading video from: {fallback_url}')
+        urllib.request.urlretrieve(fallback_url, "download.mp4")
+        #upload the video to imgur
+        imgur_url = "https://api.imgur.com/3/upload"
+        payload = {'type': 'file','disable_audio': '0','title':'test'}
+        files = [('video', open('download.mp4','rb'))]
+        headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
+        print('Uploading to imgur')
+        response = requests.request("POST", imgur_url, headers=headers, data = payload, files = files)
+        print(response)
+        json_data = json.loads(response.text)
+        print(response.text.encode('utf8'))
+        upload_link = json_data['data']['link']
+        upload_id = json_data['data']['id']
+        status_code = json_data['status']
+        print(f'Upload done')
+        return (upload_link, upload_id, status_code)
+    except TypeError:
+        upload_link = None
+        upload_id = None
+        status_code = 404
+        return (upload_link, upload_id, status_code)
+
+    
 
 def fetch(upload_id):
     print(f'Checking processing status for id: {upload_id}')
