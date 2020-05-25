@@ -6,7 +6,7 @@ import asyncio
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
-client = discord.Client()
+#client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
 def convert(reddit_link):
