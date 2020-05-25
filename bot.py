@@ -10,6 +10,9 @@ client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
 def convert(reddit_link):
+    #if the link is a v.redd.it link convert it to the full url
+    reddit_link = requests.get(reddit_link)
+    reddit_link = reddit_link.url
     #download the video from reddit
     if reddit_link[-1] != r'/':
         reddit_link = reddit_link + '/.json'
