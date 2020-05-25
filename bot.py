@@ -57,9 +57,9 @@ def fetch(upload_id):
     processing_status = json_data['data']['processing']['status']
     return processing_status
 
-@client.event
-async def on_ready():
-    print(f'{client.user} is connected and ready.')
+#@client.event
+#async def on_ready():
+#    print(f'{client.user} is connected and ready.')
 
 #@client.event
 #async def on_message(message):
