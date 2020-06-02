@@ -2,3 +2,4 @@ ignore
 converter.py
 fetcher.py
 download.mp4
+downloads/

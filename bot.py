@@ -3,13 +3,27 @@ import discord
 from discord.ext import commands
 import requests, urllib, json, time
 import asyncio
+import random
+import string
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
 #client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
+def randomString(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
+
 def convert(reddit_link):
+    #archive the previous download if there was one
+    if os.path.exists('download.mp4'):
+        new_name = randomString(12)
+        #create the downloads folder if it doesnt exist
+        if not os.path.exists('downloads'):
+            os.mkdir('downloads')
+        #rename the previous download and move it to the downloads folder
+        os.rename("download.mp4", f"downloads/{new_name}.mp4")
     #if the link is a v.redd.it link convert it to the full url
     reddit_link = requests.get(reddit_link)
     reddit_link = reddit_link.url
