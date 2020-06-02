@@ -65,19 +65,49 @@ def fetch(upload_id):
     processing_status = json_data['data']['processing']['status']
     return processing_status
 
-#@client.event
-#async def on_ready():
-#    print(f'{client.user} is connected and ready.')
+@bot.event
+async def on_ready():
+    print(f'{bot.user} is connected and ready.')
 
-#@client.event
-#async def on_message(message):
-    #lets not do an infinite loop ok?
-#    if message.author == client.user:
-#        return
-    
-#    if message.content == '$r':
-#        response = 'Usage: $r <v.reddit link>'
-#        await message.channel.send(response)
+
+#this removes the need for !c before v.redd.it video links. The bot will actively convert them as they get posted
+@bot.event
+async def on_message(message):
+    await bot.process_commands(message)
+    #lets not do an infinite loop
+    if message.author == bot.user:
+        return   
+    if message.content.startswith('https://www.reddit.com/r/') or message.content.startswith('https://v.redd.it/'):
+        link = message.content.split(' ')[0] #if there is any spaces in the msg make sure to grab the link only
+        #check if reddit link contains a video
+        #if the link is a v.redd.it link convert it to the full url
+        reddit_link = requests.get(link)
+        reddit_link = reddit_link.url
+        #download the video from reddit
+        if reddit_link[-1] != r'/':
+            reddit_link = reddit_link + '/.json'
+        else:
+            reddit_link = reddit_link + '.json'
+        r = requests.get(reddit_link, headers = {'User-agent': 'v.reddit-py 1.0'})
+        json_data = r.json()
+        #this checks if the link actually contains a v.redd.it video
+        try:
+            fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
+            message = await message.channel.send(f'⏱Converting...')
+            upload_link, upload_id, status_code, upload_error = convert(link)
+            if status_code == 200:
+                processing_status = fetch(upload_id)
+                while processing_status != 'completed':
+                    time.sleep(2)
+                    processing_status = fetch(upload_id)
+                print(f'Processing finished, posting: {upload_link}')
+                await message.edit(content=f"{upload_link}")
+            else:
+                await message.edit(content=f'Error {status_code}: {upload_error}')
+        except:
+            print('Ignoring link')
+            pass
+        
     
 @bot.command(name='c')
 async def convert_link(ctx, link: str):
