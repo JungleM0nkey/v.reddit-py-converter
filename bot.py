@@ -13,7 +13,7 @@ import string
 TOKEN = os.getenv('DISCORD_TOKEN')
 IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
 DOWNLOADS_DIR = os.getenv('DOWNLOADS_DIR')
-WORKING_DIR = os.getenv('WORKING_DIR')
+WORKING_DIR = os.getenv('WORKING_DIR') or os.getcwd()
 #client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
