@@ -12,6 +12,7 @@ import string
 TOKEN = os.getenv('DISCORD_TOKEN')
 IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
 DOWNLOADS_DIR = os.getenv('DOWNLOADS_DIR')
+WORKING_DIR = os.getenv('WORKING_DIR')
 #client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
@@ -21,6 +22,7 @@ def randomString(stringLength=8):
 
 def archive():
     #archive the previous download if there was one
+    os.chdir(WORKING_DIR)
     if os.path.exists('download.mp4'):
         new_name = randomString(12)
         #create the downloads folder if it doesnt exist
