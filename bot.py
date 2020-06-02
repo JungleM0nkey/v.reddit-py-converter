@@ -35,16 +35,24 @@ def convert(reddit_link):
         print(response)
         json_data = json.loads(response.text)
         print(response.text.encode('utf8'))
-        upload_link = json_data['data']['link']
-        upload_id = json_data['data']['id']
         status_code = json_data['status']
-        print(f'Upload done')
-        return (upload_link, upload_id, status_code)
+        if status_code != 200:
+            upload_error = json_data['data']['error']
+            upload_link = None
+            upload_id = None
+            print(f'Error Uploading: {upload_error}')
+        else:
+            upload_error = None
+            upload_link = json_data['data']['link']
+            upload_id = json_data['data']['id']
+            print(f'Upload done')
+        return (upload_link, upload_id, status_code, upload_error)
     except TypeError:
+        upload_error = 'Wrong link type'
         upload_link = None
         upload_id = None
-        status_code = 404
-        return (upload_link, upload_id, status_code)
+        status_code = 400
+        return (upload_link, upload_id, status_code, upload_error)
 
     
 
@@ -75,7 +83,7 @@ def fetch(upload_id):
 async def convert_link(ctx, link: str):
     print(f'Converting link: {link}')
     message = await ctx.send(f'⏱Converting...')
-    upload_link, upload_id, status_code = convert(link)
+    upload_link, upload_id, status_code, upload_error = convert(link)
     if status_code == 200:
         processing_status = fetch(upload_id)
         while processing_status != 'completed':
@@ -84,7 +92,7 @@ async def convert_link(ctx, link: str):
         print(f'Processing finished, posting: {upload_link}')
         await message.edit(content=f"{upload_link}")
     else:
-        await message.edit(content=f'Error status code: {status_code}')
+        await message.edit(content=f'Error {status_code}: {upload_error}')
     #await asyncio.sleep(5)  
     #await message.edit(content=f"{response}")
     #with open(response, 'rb') as fp:
