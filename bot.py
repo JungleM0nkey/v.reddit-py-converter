@@ -1,6 +1,4 @@
-
 #!/usr/bin/python3 -u
-
 import os
 import shutil
 import discord 
@@ -9,6 +7,7 @@ import requests, urllib, json, time
 import asyncio
 import random
 import string
+import ffmpeg
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
@@ -21,6 +20,7 @@ def randomString(stringLength=8):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
 
+#saves previously existing video in the downloads folder
 def archive():
     #archive the previous download if there was one
     os.chdir(WORKING_DIR)
@@ -32,6 +32,14 @@ def archive():
         #rename the previous download and move it to the downloads folder
         shutil.move(f"{WORKING_DIR}/download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
 
+#merges audio and video
+def merge():
+    video = ffmpeg.input('download_video.mp4')
+    audio = ffmpeg.input('download_audio.mp4')
+    out = ffmpeg.output(video, audio, 'download.mp4', vcodec='copy', acodec='aac', strict='experimental')
+    out.run()
+
+#main convert function for reddit links to imgur links
 def convert(reddit_link):
     #if the link is a v.redd.it link convert it to the full url
     reddit_link = requests.get(reddit_link)
@@ -46,8 +54,15 @@ def convert(reddit_link):
     #this checks if the link actually contains a v.redd.it video
     try:
         fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
+        audio_url = fallback_url.split('DASH')[0]
+        #download video
         print(f'Downloading video from: {fallback_url}')
-        urllib.request.urlretrieve(fallback_url, "download.mp4")
+        urllib.request.urlretrieve(fallback_url, "download_video.mp4")
+        #download audio
+        print(f'Downloading audio from: {audio_url}')
+        urllib.request.urlretrieve(audio_url, "download_audio.mp4")
+        #merge audio and video
+        merge()
         #upload the video to imgur
         imgur_url = "https://api.imgur.com/3/upload"
         payload = {'type': 'file','disable_audio': '0','title':'test'}
