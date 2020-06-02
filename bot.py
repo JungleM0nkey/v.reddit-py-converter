@@ -147,7 +147,7 @@ async def on_message(message):
                 await message.edit(content=f"{upload_link}")
             else:
                 await message.edit(content=f'Error {status_code}: {upload_error}')
-        except as e:
+        except Exception as e:
             print(f'Ignoring link: {e}')
             pass
         
