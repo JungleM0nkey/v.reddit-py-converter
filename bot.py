@@ -23,13 +23,13 @@ def randomString(stringLength=8):
 def archive():
     #archive the previous download if there was one
     os.chdir(WORKING_DIR)
-    if os.path.exists('download.mp4'):
+    if os.path.exists(f'{WORKING_DIR}/download.mp4'):
         new_name = randomString(12)
         #create the downloads folder if it doesnt exist
         if not os.path.exists(DOWNLOADS_DIR):
             os.mkdir(DOWNLOADS_DIR)
         #rename the previous download and move it to the downloads folder
-        os.rename("download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
+        os.rename(f"{WORKING_DIR}/download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
 
 def convert(reddit_link):
     #if the link is a v.redd.it link convert it to the full url
