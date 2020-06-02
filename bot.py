@@ -25,6 +25,7 @@ def archive():
     #archive the previous download if there was one
     os.chdir(WORKING_DIR)
     if os.path.exists(f'{WORKING_DIR}/download.mp4'):
+        print('Archiving previous video')
         new_name = randomString(12)
         #create the downloads folder if it doesnt exist
         if not os.path.exists(DOWNLOADS_DIR):
