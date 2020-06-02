@@ -15,7 +15,7 @@ def randomString(stringLength=8):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
 
-def convert(reddit_link):
+def archive():
     #archive the previous download if there was one
     if os.path.exists('download.mp4'):
         new_name = randomString(12)
@@ -24,6 +24,8 @@ def convert(reddit_link):
             os.mkdir('downloads')
         #rename the previous download and move it to the downloads folder
         os.rename("download.mp4", f"downloads/{new_name}.mp4")
+
+def convert(reddit_link):
     #if the link is a v.redd.it link convert it to the full url
     reddit_link = requests.get(reddit_link)
     reddit_link = reddit_link.url
@@ -107,6 +109,7 @@ async def on_message(message):
         #this checks if the link actually contains a v.redd.it video
         try:
             fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
+            archive()
             message = await message.channel.send(f'⏱Converting...')
             upload_link, upload_id, status_code, upload_error = convert(link)
             if status_code == 200:
@@ -126,6 +129,7 @@ async def on_message(message):
 @bot.command(name='c')
 async def convert_link(ctx, link: str):
     print(f'Converting link: {link}')
+    archive()
     message = await ctx.send(f'⏱Converting...')
     upload_link, upload_id, status_code, upload_error = convert(link)
     if status_code == 200:
