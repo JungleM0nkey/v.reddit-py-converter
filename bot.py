@@ -1,3 +1,6 @@
+
+#!/usr/bin/python3 -u
+
 import os
 import discord 
 from discord.ext import commands
