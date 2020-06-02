@@ -35,13 +35,13 @@ def archive():
 
 #merges audio and video
 def merge():
-    video = ffmpeg.input('download_video.mp4')
-    audio = ffmpeg.input('download_audio.mp4')
-    out = ffmpeg.output(video, audio, 'download.mp4', vcodec='copy', acodec='aac', strict='experimental')
+    video = ffmpeg.input(f'{WORKING_DIR}/download_video.mp4')
+    audio = ffmpeg.input(f'{WORKING_DIR}/download_audio.mp4')
+    out = ffmpeg.output(video, audio, f'{WORKING_DIR}/download.mp4', vcodec='copy', acodec='aac', strict='experimental')
     out.run()
     #cleanup
-    os.remove('download_video.mp4')
-    os.remove('download_audio.mp4')
+    os.remove(f'{WORKING_DIR}/download_video.mp4')
+    os.remove(f'{WORKING_DIR}/download_audio.mp4')
 
 #main convert function for reddit links to imgur links
 def convert(reddit_link):
