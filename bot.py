@@ -2,6 +2,7 @@
 #!/usr/bin/python3 -u
 
 import os
+import shutil
 import discord 
 from discord.ext import commands
 import requests, urllib, json, time
@@ -29,7 +30,7 @@ def archive():
         if not os.path.exists(DOWNLOADS_DIR):
             os.mkdir(DOWNLOADS_DIR)
         #rename the previous download and move it to the downloads folder
-        os.rename(f"{WORKING_DIR}/download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
+        shutil.move(f"{WORKING_DIR}/download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
 
 def convert(reddit_link):
     #if the link is a v.redd.it link convert it to the full url
