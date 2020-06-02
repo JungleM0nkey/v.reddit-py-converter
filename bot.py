@@ -39,6 +39,9 @@ def merge():
     audio = ffmpeg.input('download_audio.mp4')
     out = ffmpeg.output(video, audio, 'download.mp4', vcodec='copy', acodec='aac', strict='experimental')
     out.run()
+    #cleanup
+    os.remove('download_video.mp4')
+    os.remove('download_audio.mp4')
 
 #main convert function for reddit links to imgur links
 def convert(reddit_link):
@@ -144,8 +147,8 @@ async def on_message(message):
                 await message.edit(content=f"{upload_link}")
             else:
                 await message.edit(content=f'Error {status_code}: {upload_error}')
-        except:
-            print('Ignoring link')
+        except as e:
+            print(f'Ignoring link: {e}')
             pass
         
     
