@@ -8,4 +8,7 @@ Setup:
 
 
 Usage:
-1. !c <v.reddit link>
+!c <v.reddit link>
+
+Alternate usage:
+The bot will check new messages if they are reddit links with a video and convert automatically without the need for a !c command
