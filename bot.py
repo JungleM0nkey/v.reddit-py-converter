@@ -58,7 +58,7 @@ def convert(reddit_link):
     #this checks if the link actually contains a v.redd.it video
     try:
         fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
-        audio_url = fallback_url.split('DASH')[0]
+        audio_url = f'{fallback_url.split('DASH')[0]}/audio'
         #download video
         print(f'Downloading video from: {fallback_url}')
         urllib.request.urlretrieve(fallback_url, "download_video.mp4")
