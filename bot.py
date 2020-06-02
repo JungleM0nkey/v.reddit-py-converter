@@ -11,6 +11,7 @@ import string
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
+DOWNLOADS_DIR = os.getenv('DOWNLOAD_DIR')
 #client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
@@ -23,10 +24,10 @@ def archive():
     if os.path.exists('download.mp4'):
         new_name = randomString(12)
         #create the downloads folder if it doesnt exist
-        if not os.path.exists('downloads'):
-            os.mkdir('downloads')
+        if not os.path.exists(DOWNLOADS_DIR):
+            os.mkdir(DOWNLOADS_DIR)
         #rename the previous download and move it to the downloads folder
-        os.rename("download.mp4", f"downloads/{new_name}.mp4")
+        os.rename("download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
 
 def convert(reddit_link):
     #if the link is a v.redd.it link convert it to the full url
