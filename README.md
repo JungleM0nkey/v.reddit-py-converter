@@ -2,9 +2,10 @@
 
 Setup:
 1. pip install -r requirements.txt
-2. add the bot to your Discord server.
-3. configure the IMGUR_CLIENT, DISCORD_TOKEN and DOWNLOADS_DIR environment variables
-4. run bot.py
+2. apt install ffmpeg
+3. add the bot to your Discord server.
+4. configure the IMGUR_CLIENT, DISCORD_TOKEN and DOWNLOADS_DIR environment variables
+5. run bot.py
 
 
 Usage:
