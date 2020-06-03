@@ -61,12 +61,12 @@ def convert(reddit_link):
         audio_url = fallback_url.split('DASH')[0]+'audio'
         #download video
         print(f'Downloading video from: {fallback_url}')
-        urllib.request.urlretrieve(fallback_url, "download_video.mp4")
+        urllib.request.urlretrieve(fallback_url, "download.mp4")
         #download audio
-        print(f'Downloading audio from: {audio_url}')
-        urllib.request.urlretrieve(audio_url, "download_audio.mp4")
+        #print(f'Downloading audio from: {audio_url}')
+        #urllib.request.urlretrieve(audio_url, "download_audio.mp4")
         #merge audio and video
-        merge()
+        #merge()
         #upload the video to imgur
         imgur_url = "https://api.imgur.com/3/upload"
         payload = {'type': 'file','disable_audio': '0','title':'test'}
