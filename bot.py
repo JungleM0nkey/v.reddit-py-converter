@@ -68,12 +68,12 @@ def convert(reddit_link):
     print(f'Downloading video from: {dash_url}')
     #os.system(f"ffmpeg -i {dash_url} -c copy download.mp4")
     #subprocess.check_output("ffmpeg -i "+dash_url+" -c copy download.mp4", shell=True)
-    p = subprocess.Popen(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
-    p.terminate()
+    subprocess.Popen(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
+    print(f"Download of {post_title} finished")
     file_name = "download.mp4"
     #upload video to streamable
     video_file= {'file': (file_name, open(file_name, 'rb'))}
-    upload_request = requests.post('https://api.streamable.com/upload', auth=(STREAMABLE_EMAIL, STREAMABLE_PW), files=file).json()
+    upload_request = requests.post('https://api.streamable.com/upload', auth=(STREAMABLE_EMAIL, STREAMABLE_PW), files=video_file).json()
     print(upload_request)
     upload_info = requests.get('https://api.streamable.com/videos/'+str(upload_request['shortcode']), auth=(STREAMABLE_EMAIL, STREAMABLE_PW)).json()
     print(upload_info)
