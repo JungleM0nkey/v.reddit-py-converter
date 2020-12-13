@@ -8,11 +8,14 @@ import asyncio
 import random
 import string
 import ffmpeg
+import subprocess
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
+#IMGUR_CLIENT = os.getenv('IMGUR_CLIENT')
 DOWNLOADS_DIR = os.getenv('DOWNLOADS_DIR')
 WORKING_DIR = os.getenv('WORKING_DIR') or os.getcwd()
+STREAMABLE_EMAIL = os.getenv('STREAMABLE_EMAIL')
+STREAMABLE_PW = os.getenv('STREAMABLE_PW')
 #client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
@@ -34,14 +37,14 @@ def archive():
         shutil.move(f"{WORKING_DIR}/download.mp4", f"{DOWNLOADS_DIR}/{new_name}.mp4")
 
 #merges audio and video
-def merge():
-    video = ffmpeg.input(f'{WORKING_DIR}/download_video.mp4')
-    audio = ffmpeg.input(f'{WORKING_DIR}/download_audio.mp4')
-    out = ffmpeg.output(video, audio, f'{WORKING_DIR}/download.mp4', vcodec='copy', acodec='aac', strict='experimental')
-    out.run()
+#def merge():
+#    video = ffmpeg.input(f'{WORKING_DIR}/download_video.mp4')
+#    audio = ffmpeg.input(f'{WORKING_DIR}/download_audio.mp4')
+#    out = ffmpeg.output(video, audio, f'{WORKING_DIR}/download.mp4', vcodec='copy', acodec='aac', strict='experimental')
+#    out.run()
     #cleanup
-    os.remove(f'{WORKING_DIR}/download_video.mp4')
-    os.remove(f'{WORKING_DIR}/download_audio.mp4')
+#    os.remove(f'{WORKING_DIR}/download_video.mp4')
+#    os.remove(f'{WORKING_DIR}/download_audio.mp4')
 
 #main convert function for reddit links to imgur links
 def convert(reddit_link):
@@ -57,38 +60,45 @@ def convert(reddit_link):
     json_data = r.json()
     #this checks if the link actually contains a v.redd.it video
     try:
-        fallback_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['fallback_url']
-        audio_url = fallback_url.split('DASH')[0]+'audio'
+        dash_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['dash_url']
+        post_title = json_data[0]['data']['children'][0]['data']['title']
+        #audio_url = fallback_url.split('DASH')[0]+'audio'
         #download video
-        print(f'Downloading video from: {fallback_url}')
-        urllib.request.urlretrieve(fallback_url, "download.mp4")
+        print(f'Downloading video from: {dash_url}')
+        subprocess.call(f'ffmpeg -i {dash_url} -c copy {post_title}.mp4', shell=True)
+        #upload video to streamable
+        video_file= {'file': (file_name, open(f'{post_title}.mp4', 'rb'))}
+        upload_request = requests.post('https://api.streamable.com/upload', auth=(STREAMABLE_EMAIL, STREAMABLE_PW), files=file).json()
+        upload_info = requests.get('https://api.streamable.com/videos/'+str(upload_request['shortcode']), auth=(STREAMABLE_EMAIL, STREAMABLE_PW)).json()
+        status_code = upload_info['status']
+        #urllib.request.urlretrieve(fallback_url, "download.mp4")
         #download audio
         #print(f'Downloading audio from: {audio_url}')
         #urllib.request.urlretrieve(audio_url, "download_audio.mp4")
         #merge audio and video
         #merge()
         #upload the video to imgur
-        imgur_url = "https://api.imgur.com/3/upload"
-        payload = {'type': 'file','disable_audio': '0','title':'test'}
-        files = [('video', open('download.mp4','rb'))]
-        headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
-        print('Uploading to imgur')
-        response = requests.request("POST", imgur_url, headers=headers, data = payload, files = files)
-        print(response)
-        json_data = json.loads(response.text)
-        print(response.text.encode('utf8'))
-        status_code = json_data['status']
-        if status_code != 200:
-            upload_error = json_data['data']['error']
+        #imgur_url = "https://api.imgur.com/3/upload"
+        #payload = {'type': 'file','disable_audio': '0','title':'test'}
+        #files = [('video', open('download.mp4','rb'))]
+        #headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
+        #print('Uploading to imgur')
+        #response = requests.request("POST", imgur_url, headers=headers, data = payload, files = files)
+        #print(response)
+        #json_data = json.loads(response.text)
+        #print(response.text.encode('utf8'))
+        #status_code = json_data['status']
+        if status_code != 1:
+            upload_error = upload_info['message']
             upload_link = None
-            upload_id = None
+            #upload_id = None
             print(f'Error Uploading: {upload_error}')
         else:
             upload_error = None
-            upload_link = json_data['data']['link']
-            upload_id = json_data['data']['id']
+            upload_link = "https://"+upload_info['url']
+            #upload_id = json_data['data']['id']
             print(f'Upload done')
-        return (upload_link, upload_id, status_code, upload_error)
+        return (upload_link, status_code, upload_error)
     except TypeError:
         upload_error = 'Wrong link type'
         upload_link = None
@@ -98,14 +108,14 @@ def convert(reddit_link):
 
     
 
-def fetch(upload_id):
-    print(f'Checking processing status for id: {upload_id}')
-    imgur_url = f"https://api.imgur.com/3/image/{upload_id}"
-    headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
-    response = requests.request("GET", imgur_url, headers=headers)
-    json_data = json.loads(response.text)
-    processing_status = json_data['data']['processing']['status']
-    return processing_status
+#def fetch(upload_id):
+#    print(f'Checking processing status for id: {upload_id}')
+#    imgur_url = f"https://api.imgur.com/3/image/{upload_id}"
+#    headers = {'Authorization': 'Client-ID '+IMGUR_CLIENT}
+#    response = requests.request("GET", imgur_url, headers=headers)
+#    json_data = json.loads(response.text)
+#    processing_status = json_data['data']['processing']['status']
+#    return processing_status
 
 @bot.event
 async def on_ready():
@@ -157,12 +167,12 @@ async def convert_link(ctx, link: str):
     print(f'Converting link: {link}')
     archive()
     message = await ctx.send(f'⏱Converting...')
-    upload_link, upload_id, status_code, upload_error = convert(link)
-    if status_code == 200:
-        processing_status = fetch(upload_id)
-        while processing_status != 'completed':
-            time.sleep(2)
-            processing_status = fetch(upload_id)
+    upload_link, status_code, upload_error = convert(link)
+    if status_code == 1:
+        #processing_status = fetch(upload_id)
+        #while processing_status != 'completed':
+        #    time.sleep(2)
+        #    processing_status = fetch(upload_id)
         print(f'Processing finished, posting: {upload_link}')
         await message.edit(content=f"{upload_link}")
     else:
