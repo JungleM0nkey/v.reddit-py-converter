@@ -68,7 +68,7 @@ def convert(reddit_link):
     print(f'Downloading video from: {dash_url}')
     #os.system(f"ffmpeg -i {dash_url} -c copy download.mp4")
     #subprocess.check_output("ffmpeg -i "+dash_url+" -c copy download.mp4", shell=True)
-    subprocess.Popen(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
+    subprocess.run(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
     print(f"Download of {post_title} finished")
     file_name = "download.mp4"
     #upload video to streamable
