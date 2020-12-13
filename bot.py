@@ -66,10 +66,10 @@ def convert(reddit_link):
     #audio_url = fallback_url.split('DASH')[0]+'audio'
     #download video
     print(f'Downloading video from: {dash_url}')
-    os.system(f"ffmpeg -i {dash_url} -c copy download.mp4")
+    #os.system(f"ffmpeg -i {dash_url} -c copy download.mp4")
     #subprocess.check_output("ffmpeg -i "+dash_url+" -c copy download.mp4", shell=True)
-    #subprocess.Popen(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
-
+    p = subprocess.Popen(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
+    p.terminate()
     file_name = "download.mp4"
     #upload video to streamable
     video_file= {'file': (file_name, open(file_name, 'rb'))}
