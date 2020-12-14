@@ -59,18 +59,14 @@ def convert(reddit_link):
         reddit_link = reddit_link + '.json'
     r = requests.get(reddit_link, headers = {'User-agent': 'v.reddit-py 1.0'})
     json_data = r.json()
-    #this checks if the link actually contains a v.redd.it video
     dash_url = json_data[0]['data']['children'][0]['data']['secure_media']['reddit_video']['dash_url']
     dash_url = dash_url.split('?')[0]
     post_title = json_data[0]['data']['children'][0]['data']['title']
-    #audio_url = fallback_url.split('DASH')[0]+'audio'
     #download video
     print(f'Downloading video from: {dash_url}')
-    #os.system(f"ffmpeg -i {dash_url} -c copy download.mp4")
-    #subprocess.check_output("ffmpeg -i "+dash_url+" -c copy download.mp4", shell=True)
-    subprocess.run(['ffmpeg', '-i', dash_url, '-c', 'copy', 'download.mp4'])
-    print(f"Download of {post_title} finished")
-    file_name = "download.mp4"
+    subprocess.run(['ffmpeg', '-i', dash_url, '-c', 'copy', '{post_title}.mp4'])
+    print(f"Download of {post_title} finished, starting video upload to Streamable")
+    file_name = "{post_title}.mp4"
     #upload video to streamable
     video_file= {'file': (file_name, open(file_name, 'rb'))}
     upload_request = requests.post('https://api.streamable.com/upload', auth=(STREAMABLE_EMAIL, STREAMABLE_PW), files=video_file).json()
@@ -154,6 +150,7 @@ async def on_message(message):
                 #while processing_status != 'completed':
                 #    time.sleep(2)
                 #    processing_status = fetch(upload_id)
+                time.sleep(5)
                 print(f'Processing finished, posting: {upload_link}')
                 await message.edit(content=f"{upload_link}")
             else:
@@ -174,6 +171,7 @@ async def convert_link(ctx, link: str):
         #while processing_status != 'completed':
         #    time.sleep(2)
         #    processing_status = fetch(upload_id)
+        time.sleep(5)
         print(f'Processing finished, posting: {upload_link}')
         await message.edit(content=f"{upload_link}")
     else:
