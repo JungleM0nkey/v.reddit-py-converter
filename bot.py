@@ -150,7 +150,7 @@ async def on_message(message):
                 #while processing_status != 'completed':
                 #    time.sleep(2)
                 #    processing_status = fetch(upload_id)
-                time.sleep(5)
+                time.sleep(10)
                 print(f'Processing finished, posting: {upload_link}')
                 await message.edit(content=f"{upload_link}")
             else:
@@ -171,7 +171,7 @@ async def convert_link(ctx, link: str):
         #while processing_status != 'completed':
         #    time.sleep(2)
         #    processing_status = fetch(upload_id)
-        time.sleep(5)
+        time.sleep(10)
         print(f'Processing finished, posting: {upload_link}')
         await message.edit(content=f"{upload_link}")
     else:
